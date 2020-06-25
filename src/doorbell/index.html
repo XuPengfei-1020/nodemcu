@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>501 远程门禁</title>
+	<style>
+		html{height:100%;overflow: hidden;}
+		body{height:100%;}
+		.btn {
+			text-transform: none;
+			overflow: visible;
+			border-radius: 50%;
+			border: .05rem solid #5755d9;
+		}
+		.btn.btn-success {
+			height: 20rem;
+			width: 20rem;
+			font-size:5rem;
+			background: #32b643;
+			border-color: #2faa3f;
+			color: #fff;
+		}
+		.btn.btn-error {
+			height: 12rem;
+			width: 12rem;
+			font-size:3rem;
+			background: #e85600;
+			border-color: #d95000;
+			color: #fff;
+		}
+		.btn.disable {
+			background: #5a6268;
+			color: #fff;
+		}
+
+		.breathe-btn {
+			position:relative;
+			width:100px;
+			height:10px;
+			margin:40px auto;
+			line-height:40px;
+			border:1px solid #2b92d4;
+			font-size:20px;
+			text-align:center;
+			box-shadow:0 1px 2px rgba(0,0,0,.3);
+			overflow:hidden;
+			-webkit-animation-timing-function:ease-in-out;
+			-webkit-animation-name:breathe;
+			-webkit-animation-duration:2000ms;
+			-webkit-animation-iteration-count:infinite;
+			-webkit-animation-direction:alternate;
+		}
+
+		.breathe-out-btn {
+			position:relative;
+			width:100px;
+			height:10px;
+			margin:40px auto;
+			line-height:40px;
+			border:1px solid #2b92d4;
+			font-size:20px;
+			text-align:center;
+			box-shadow:0 1px 2px rgba(0,0,0,.3);
+			overflow:hidden;
+			-webkit-animation-timing-function:ease-in-out;
+			-webkit-animation-name:breathe;
+			-webkit-animation-duration:300ms;
+			-webkit-animation-iteration-count:infinite;
+			-webkit-animation-direction:alternate;
+		}
+
+		@-webkit-keyframes breathe {
+			0% {
+			opacity:.5;
+			box-shadow:0 1px 2px rgba(255,255,255,0.1);
+		}
+
+		100% {
+			opacity:1;
+			border:1px solid rgba(59,235,235,1);
+			box-shadow:0 1px 30px rgba(59,255,255,1);
+		}
+	</style>
+
+	<script>
+		var lastTime = -1;
+		function open_door() {
+			var now = Date.now();
+			if (now - lastTime < (8 * 1000)) return;
+			lastTime=now;
+			
+
+			var xhr = new XMLHttpRequest();  
+			xhr.open('GET', './open_the_door'); 
+			xhr.onload = function () {
+				console.log("onload")
+				var btn = document.querySelector('#openBtn');
+				btn.innerText="正在开...";
+				btn.classList.remove("breathe-btn");
+				btn.classList.add("breathe-out-btn");
+
+				setTimeout(() => {
+					document.querySelector('#openBtn').innerText="开  门";
+					btn.classList.remove("breathe-out-btn");
+					btn.classList.add("breathe-btn");
+				}, 8000);
+			};
+			xhr.send(null);  //发送请求
+		}
+
+		function hang_up() {
+			var now = Date.now();
+			if (now - lastTime < (5 * 1000)) return;
+			lastTime=now;
+
+			var xhr = new XMLHttpRequest();  
+			xhr.open ('GET', './hang_up'); 
+			xhr.onload = function () {
+				console.log("onload")
+				document.querySelector('#hangUpBtn').innerText="已挂断";
+				btn.classList.add("breathe-out-btn");
+				setTimeout(() => {
+					document.querySelector('#hangUpBtn').innerText="挂  断";
+					btn.classList.remove("breathe-out-btn");
+				}, 5000);
+			};
+			xhr.send(null);  //发送请求
+			
+		}
+	</script>
+</head>
+<body>
+	<div style="text-align: center">
+		<h1 style="font-size: 4rem;color: #8e8e8e;">501 远程门禁，仅限局域网</h1>
+		<div style="margin: 3rem;margin-top: 16rem;">
+			<button id='openBtn' class="btn btn-success breathe-btn" onclick="open_door()">开  门</button>
+		</div>
+		<div>
+			<button id='hangUpBtn' class="btn btn-error" onclick="hang_up()">挂  断</button>
+		</div>
+	</div>
+</body>
+</html>

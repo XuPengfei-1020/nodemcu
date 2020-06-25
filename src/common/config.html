@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+    <title>501 远程门禁 - 设置页面</title>
+    <link href="./custom.css" rel="stylesheet">
+    <link href="./spectre.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="column col-6 col-xs-12">
+        <div class="panel">
+          <div class="panel-header text-center">
+            <figure class="avatar avatar-lg"><img src="../img/avatar-2.png" alt="Avatar"></figure>
+            <div class="panel-subtitle">控制面板</div>
+          </div>
+          <nav class="panel-nav">
+            <ul class="tab tab-block">
+              <li id='status_li' class="tab-item active"><a href="javascript:switchPanel('status_li', 'statusPanel')">状态</a></li>
+              <li id='config_li' class="tab-item"><a href="javascript:switchPanel('config_li', 'configPanel')">设置</a></li>
+            </ul>
+          </nav>
+          <div class="panel-body active" id="statusPanel">
+            <div class="tile tile-centered">
+              <div class="tile-content">
+                <div class="tile-title text-bold">模式</div>
+                <div class="tile-subtitle" id="wifiMode">AP & STATION</div>
+              </div>
+            </div>
+            <div class="tile tile-centered">
+              <div class="tile-content">
+                <div class="tile-title text-bold">ap</div>
+                <div class="tile-subtitle" id="apInfo">name: dddddddd, pass: dddddd</div>
+              </div>
+            </div>
+            <div class="tile tile-centered">
+              <div class="tile-content">
+                <div class="tile-title text-bold">wifi</div>
+                <div class="tile-subtitle" id="wifiInfo">ziroom501, 已连接</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-body" id="configPanel">
+            <div class="tile tile-centered">
+              <div class="tile-content">
+                <div class="tile-title text-bold">修改 wifi 密码</div>
+                    <div class="form-group">
+                        <input class="form-input" type="text" id="wifi" placeholder="wifi名字">
+                        <input class="form-input" type="text" id="password" placeholder="wifi密码">
+                        <button class="btn btn-success">保存/重启</button>
+                    </div>
+              </div>
+            </div>
+
+            <div class="tile tile-centered">
+                <div class="tile-content">
+                  <div class="tile-title text-bold">修改 AP 名称和密码</div>
+                      <div class="form-group">
+                          <input class="form-input" type="text" id="wifi" placeholder="wifi名字">
+                          <input class="form-input" type="text" id="password" placeholder="wifi密码">
+                          <button class="btn btn-success">保存/连接</button>
+                      </div>
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+</body>
+<script>
+    function switchPanel(label, panel) {
+        var active = document.querySelector('.tab-item.active');
+        if (active) active.classList.remove('active');
+        label = document.querySelector(`#${label}.tab-item`)
+        label.classList.add('active');
+
+        active = document.querySelector('.panel-body.active');
+        if (active) active.classList.remove('active');
+        panel = document.querySelector(`#${panel}.panel-body`)
+        panel.classList.add('active');
+    }
+
+    function getStatus() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', 'http://192.168.199.132/wifi_st_config');
+        xhr.onload = function(data) {
+            var body = XMLHttpRequest.response;
+            console.log(body);
+        }
+        xhr.send();
+    }
+</script>
+</html>
