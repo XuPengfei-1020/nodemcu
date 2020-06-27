@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>设置页面</title>
+  <link href="./pure-min.css" rel="stylesheet" />
+  <link href="./custom.css" rel="stylesheet" />
+  <style>
+    /* 其他 */
+    .panel-body.active {display: block;}
+    .panel-body {display: none;}
+    a.li {height: 100%;color: inherit}
+    a.li.active {border-bottom: solid 2px #5755d9;color: #5755d9;}
+    ul,li {list-style-type: none;padding-left: 0px;}
+    h3,h4,h5,h6 {padding: 0px 0.3em 0 0.3em}
+  </style>
+</head>
+
+<body>
+  <div class="column col-12 col-xs-12">
+    <div class="panel">
+      <div>
+        <div style="height: 30px;"></div>
+        <div class='flex column align-items-center'>
+          <img style="border-radius: 12px 12px" src="http://192.168.199.187/IOT_96px-min.png" alt="Avatar">
+          <h5 style="margin-top: 5px;">控制面板</h5>
+        </div>
+      </div>
+
+      <div class="flex center" style="height: 2em; border-bottom:solid 1px #bababa">
+        <div class="fg-1 center">
+          <a class="flex center align-items-center none-decoration li active" name="panel-switch" id='status_li'
+            href="javascript:switchPanel('status_li', 'statusPanel')">状态</a>
+        </div>
+        <div class="fg-1 center">
+          <a class="flex center align-items-center none-decoration li" name="panel-switch" id='config_li'
+            href="javascript:switchPanel('config_li', 'configPanel')">设置</a>
+        </div>
+      </div>
+
+      <div class="panel-body active" id="statusPanel">
+        <div class="pure-g">
+          <div class="flex end pure-u-1-5"><h3 style="margin-top: 1em;">模式:</h3></div>
+          <div class="pure-u-4-5"><h3 style="margin-top: 1em;" id="wifiMode"></h3></div>
+          
+          <div class="flex end align-items-start pure-u-1-5"><h3 style="margin-top: 0px;">AP:</h3></div>
+          <div class="pure-u-4-5"><div id="apInfo" style="word-wrap:break-word"></div></div>
+          
+          <div class="flex end align-items-start pure-u-1-5"><h3 style="margin-top: 0px;">wifi:</h3></div>
+          <div class="pure-u-4-5"><div id="wifiInfo" style="word-wrap:break-word"></div></div>
+        </div>
+      </div>
+
+      <div class="panel-body" id="configPanel">
+        <div class="pure-form pure-form-aligned" style="margin: 1em;border: solid 1px #3b4351;">
+          <div style="padding: 8px 10px 2px 8px; color: #5755d9;">修改 wifi 密码：</div>
+          <fieldset>
+            <div class="flex column align-items-center">
+              <input class="form-input" type="text" id="wifi_ssid" placeholder="wifi名字">
+              <input class="form-input" type="text" id="wifi_pass" placeholder="wifi密码">
+              <button class="button-success pure-button" onclick="save()">保存/重启</button>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+  function switchPanel(label, panel) {
+    // label
+    var active = document.querySelectorAll('a[name=panel-switch]');
+    if (active) active.forEach((i) =>i.classList.remove('active'));
+    label = document.querySelector(`#${label}`)
+    label.classList.add('active');
+
+    // panel
+    active = document.querySelectorAll('.panel-body.active');
+    if (active) active.forEach((i) => i.classList.remove('active'));
+    panel = document.querySelector(`#${panel}.panel-body`)
+    panel.classList.add('active');
+  }
+
+  function save() {
+    var ssid = document.querySelector('#wifi_ssid').value;
+    var pass = document.querySelector('#wifi_pass').value;
+    if (!ssid) {
+      return;
+    }
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('post', `./wifi_st_config?ssid=${ssid}&pass=${pass}`);
+    xhr.onload = function (data) {
+      var rs = JSON.parse(xhr.response)
+      if (rs.code == 0) {
+        alert('修改成功，2s 后生效')
+        location.reload()
+      } else {
+        alert(`修改失败，原因：${rs.msg}`)
+      }
+    }
+    xhr.send();
+  }
+
+  function getStatus() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('get', './wifi_status');
+    xhr.onload = function (data) {
+      var body = xhr.response;
+      console.log(body);
+      var result = JSON.parse(body);
+      document.querySelector('#wifiMode').innerText = (result.mode == 1 ? 'AP' : (result.mode == 2 ? 'STATION' : 'AP & STATION'))
+      document.querySelector('#apInfo').innerHTML = `
+        <div style="margin: 0.3em;">name: ${result.ap.ssid}</div> 
+        <div style="margin: 0.3em;">pass: ${result.ap.pass}</div>
+        <div style="margin: 0.3em;">IP: ${result.ap.ip || '未启用'}</div>
+        <div style="margin: 0.3em;">clients:<div><span> ${JSON.stringify(result.ap.clients)}</span>
+      `
+      document.querySelector('#wifiInfo').innerHTML = `
+        <div style="margin: 0.3em;">name: ${result.sta.ssid}</div> 
+        <div style="margin: 0.3em;">pass: ${result.sta.pass}</div>
+        <div style="margin: 0.3em;">IP: ${result.sta.ip || '未连接'}</div>
+      `
+    }
+    xhr.send();
+  }
+  getStatus()
+</script>
+
+</html>

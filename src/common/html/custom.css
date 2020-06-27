@@ -1,0 +1,38 @@
+/* flex 容器属性 */
+.flex {
+    display: -webkit-flex;
+    /* Safari */
+    display: flex;
+  }
+
+  .inline-flex {
+    display: inline-flex;
+  }
+
+  /* 主轴方向 */
+  .flex.row-reverse, .inline-flex.row-reverse {flex-direction: row-reverse}
+  .flex.column, .inline-flex.column {flex-direction: column}
+  .flex.column-reverse, .inline-flex.column-reverse {flex-direction: column-reverse}
+  /* 换行方式 */
+  .flex.wrap, .inline-flex.wrap {flex-wrap: wrap}
+  /* 主轴对齐方式 */
+  .flex.end, .inline-flex.end {justify-content: end}
+  .flex.center, .inline-flex.center {justify-content: center}
+  .flex.between, .inline-flex.between {justify-content: between}
+  .flex.around, .inline-flex.around {justify-content: between}
+
+  /* 交叉轴对齐方式 */
+  .flex.align-items-start, .inline-flex.align-items-start {align-items: flex-start}
+  .flex.align-items-end, .inline-flex.align-items-end {align-items: flex-end}
+  .flex.align-items-center, .inline-flex.align-items-center {align-items: center}
+  .flex.align-items-line, .inline-flex.align-items-line {align-items: baseline}
+
+  /* flex 项目属性 */
+  .fg-1 {flex-grow: 1}
+  .fg-2 {flex-grow: 2}
+  .fg-3 {flex-grow: 3}
+  .fg-4 {flex-grow: 4}
+  .fg-5 {flex-grow: 5}
+  .fg-6 {flex-grow: 6}
+  .fg-7 {flex-grow: 7}
+  .fg-8 {flex-grow: 8}
