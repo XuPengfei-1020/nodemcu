@@ -70,17 +70,17 @@ function Res:send(body)
 	end
 	buf = buf .. '\r\n' .. body
 
-	local function doSend()
+	local function doSend(skt)
 		if buf == '' then 
-			self:close()
+			skt:close()
 		else
-			self._skt:send(string.sub(buf, 1, 512))
+			skt:send(string.sub(buf, 1, 512))
 			buf = string.sub(buf, 513)
 		end
 	end
 	self._skt:on('sent', doSend)
 
-	doSend()
+	doSend(self._skt)
 end
 
 function Res:sendFile(filename)
@@ -109,28 +109,20 @@ function Res:sendFile(filename)
 
 	print('* Sending ', filename)
 	local pos = 0
-	local function doSend()
+	local function doSend(skt)
 		file.open(filename, 'r')
 		if file.seek('set', pos) == nil then
-			self:close()
+			skt:close()
 			print('* Finished ', filename)
 		else
 			local buf = file.read(512)
 			pos = pos + 512
-			self._skt:send(buf)
+			skt:send(buf)
 		end
 		file.close()
 	end
 	self._skt:on('sent', doSend)
-	
 	self._skt:send(header)
-end
-
-function Res:close()
-	self._skt:on('sent', function() end) -- release closures context
-	self._skt:on('receive', function() end)
-	self._skt:close()
-	self._skt = nil
 end
 
 --------------------
