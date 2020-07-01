@@ -1,13 +1,13 @@
 --------------------
 -- helper, copy from https://github.com/wangzexi/NodeMCU-HTTP-Server
 --------------------
-function urlDecode(url)
+local function urlDecode(url)
 	return url:gsub('%%(%x%x)', function(x)
 		return string.char(tonumber(x, 16))
 	end)
 end
 
-function guessType(filename)
+local function guessType(filename)
 	local types = {
 		['.css'] = 'text/css', 
 		['.js'] = 'application/javascript', 
@@ -166,7 +166,7 @@ function parseHeader(req, res)
 	return true
 end
 
-function staticFile(req, res)
+local function staticFile(req, res)
 	local filename = ''
 	if req.path == '/' then
 		filename = 'index.html'

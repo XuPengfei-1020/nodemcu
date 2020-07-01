@@ -5,8 +5,9 @@ local filename = 'wifi.cfg'
 function wificfg:cfgwifi()
     local fd = file.open(filename, 'r');
     if not fd then
-        wifi.ap.config({ssid = 'ESP-8266-01', pwd = 'ESP-8266-01!'})
-        return {code = -1, msg = 'file open failed, may be not exists?'}
+        local ssid = 'ESP-8266-'..node.chipid()
+        wifi.ap.config({ssid = ssid, pwd = ssid..'!'})
+        return {code = -1, msg = 'cfg file open failed, exists?'}
     end
 
     local content = fd:read()
@@ -15,17 +16,17 @@ function wificfg:cfgwifi()
     local ok, config = pcall(sjson.decode, content)
 
     if not ok then
-		return {code = -1, msg = 'parse json failed, config is invalid'}
+		return {code = -1, msg = 'parse json failed, cfg is invalid'}
     end
 
     if config.ap == nil or config.sta == nil then
-        return {code = -1, msg = 'config has no ap or sta'}
+        return {code = -1, msg = 'cfg has no ap nor sta'}
     end
 
     wifi.setmode(3, true)
     wifi.ap.config(config.ap)
     wifi.sta.config(config.sta)
-    return {code = 0, msg = 'load config from '..filename}
+    return {code = 0, msg = 'load cfg from '..filename}
 end
 
 -- save wifi cfg
@@ -34,7 +35,8 @@ function wificfg:savecfg(sta, ap)
         return {code = -1, msg = 'sta is nil'}
     end
 
-    ap = ap or {ssid='ESP-8266-01', pwd='ESP-8266-01!'}
+    local ssid = 'ESP-8266-'..node.chipid()
+    ap = ap or {ssid = ssid, pwd = ssid..'!'}
     file.putcontents(filename, sjson.encode({ap = ap, sta = sta}))
     return {code = 0}
 end
