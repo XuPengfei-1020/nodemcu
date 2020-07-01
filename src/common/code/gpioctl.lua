@@ -33,7 +33,7 @@ local function _okcode(msg)
 	return {code = 0, msg = msg}
 end
 
-function _sleep(itvl, doaction, debug)
+local function _sleep(itvl, doaction, debug)
 	if itvl == nil then
 		return _errcode('interval is nil')
 	end
