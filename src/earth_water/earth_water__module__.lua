@@ -1,20 +1,21 @@
-local cfg = {interval: 300000}
+local cfg = {interval = 7000}
 local detect_tmr =  tmr.create()
 local filename = 'earth_water.cfg'
 
-function load_cfg()
+function load_or_def_cfg()
 	local cfg_file = file.open(filename, 'r')
-	if cfg_file then
-		local content = cfg_file:read()
-        cfg_file:close()
-        print('Load earth_water config:', content)
-        local ok, config = pcall(sjson.decode, content)
-        if not ok then
-            print('Parse json failed, earth_water cfg is invalid')
-		else
-			cfg = config
-		end
+	if not cfg_file then
+		return {interval = 7000}
 	end
+
+	local content = cfg_file:read()
+    cfg_file:close()
+    print('Load earth_water config:', content)
+    local ok, config = pcall(sjson.decode, content)
+	if ok then
+		return config
+	end
+    print('Parse json failed, earth_water cfg is invalid')
 end
 
 -- save cfg
@@ -50,7 +51,7 @@ local function upload_data(val)
 		return
 	end
 
-	local url = cfg.adafruit.url
+	local url = cfg.adafruit.url .. '/data'
 	local token = cfg.adafruit.token
 	local header = 'Content-Type: application/x-www-form-urlencoded\r\nX-AIO-Key: ' .. token .. '\r\n'
 	http.post(url, header, val, function(code, data) print(code, data) end)
@@ -72,6 +73,7 @@ local function do_detect()
 	read_tmr:start()
 end
 
+cfg = load_or_def_cfg()
 detect_tmr:register(2000, tmr.ALARM_AUTO, do_detect)
 detect_tmr:interval(cfg.interval)
 detect_tmr:start()
