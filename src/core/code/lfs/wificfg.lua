@@ -5,24 +5,27 @@ local filename = 'wifi.cfg'
 function wificfg:cfgwifi()
     local fd = file.open(filename, 'r')
     local ap, sta
-    if not fd then
-        local ssid = 'ESP-8266-'..node.chipid()
-        ap = {ssid = ssid, pwd = ssid..'!'}
-        print('Wifi cfg file not exists?')
-    else 
+    if fd then
         local content = fd:read()
         fd:close()
         print('Load wifi  config:', content)
         local ok, config = pcall(sjson.decode, content)
-        if not ok then
+        if ok then
+            ap = config.ap
+            sta = config.sta
+        else
             print('Parse json failed, wifi cfg is invalid')
         end
+    else 
+        local ssid = 'ESP-8266-'..node.chipid()
+        ap = {ssid = ssid, pwd = ssid..'!'}
+        print('Wifi cfg file not exists?')
     end
 
     wifi.setmode(sta == nil and 2 or 3, true)
-    wifi.ap.config(config.ap or ap)
+    wifi.ap.config(ap)
     if (sta ~= nil) then
-        wifi.sta.config(config.sta)
+        wifi.sta.config(sta)
     end
 
     return {code = 0, msg = 'Init wifi complete.'}
