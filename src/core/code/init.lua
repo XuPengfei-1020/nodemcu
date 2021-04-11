@@ -27,6 +27,21 @@ local function load_module(module)
 	end	
 end
 
+print('>>>>> Load config.')
+SDK_CFG = {}
+local fd = file.open('sdk.cfg', 'r')
+if fd then
+    local content = fd:read()
+    fd:close()
+    print('SDK config:', content)
+    local ok, config = pcall(sjson.decode, content)
+    if ok then
+		SDK_CFG = config
+    else
+		print('Parse json failed, sdk cfg is invalid')
+    end
+end
+
 print('>>>>> Start find module.')
 -- load from LFS
 for i, module in pairs(node.LFS.list()) do

@@ -16,10 +16,10 @@ function wificfg:cfgwifi()
         else
             print('Parse json failed, wifi cfg is invalid')
         end
-    else 
+    end
+    if not ap then
         local ssid = 'ESP-8266-'..node.chipid()
         ap = {ssid = ssid, pwd = ssid..'!'}
-        print('Wifi cfg file not exists?')
     end
 
     wifi.setmode(sta == nil and 2 or 3, true)
