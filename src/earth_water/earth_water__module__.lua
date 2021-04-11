@@ -1,6 +1,7 @@
-local cfg = {interval = 7000}
+local cfg = {interval = 7000, alerm = 29}
 local detect_tmr =  tmr.create()
 local filename = 'earth_water.cfg'
+local last_miaotixing_time = -1
 
 function load_or_def_cfg()
 	local cfg_file = file.open(filename, 'r')
@@ -62,13 +63,38 @@ local function read_adc()
 	return 100 - (val > 100 and 100 or val)
 end
 
+-- 告警
+local function alerm(val)
+	if val <= (cfg.alerm or 27) then
+		-- 指示灯，亮 10s
+		gpio.mode(4, gpio.OUTPUT)
+		tmr.create():alarm(10000, tmr.ALARM_SINGLE, function()
+			gpio.mode(4, gpio.INPUT)
+		end)
+		-- 喵提醒, 2 个小时一次
+		local uptime = tmr.time()
+		print(cfg.miaotixing)
+		if cfg.miaotixing and (last_miaotixing_time == -1 or (uptime - last_miaotixing_time > 7200)) then
+			http.get(cfg.miaotixing, nil, function(code, data) 
+				if code == 200 then
+					last_miaotixing_time = uptime
+					print('miaotixing:' .. code) 
+				end
+			end)
+		end
+	end
+end
+
 local function do_detect()
 	gpio.write(1,1)
 	local read_tmr = tmr.create()
 	read_tmr:register(50, tmr.ALARM_SINGLE, function() 
 		val = read_adc()
 		gpio.write(1,0)
-		upload_data(val) 
+		upload_data(val)
+		if val <= (cfg.alerm or 27) then
+			alerm(val)
+		end
 	end)
 	read_tmr:start()
 end
